@@ -1,0 +1,689 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đề Cương Ôn Tập Vật Lí 12 Giữa Kì I - Mã Đề 102</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- MathJax for nice LaTeX formatting if needed -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col antialiased">
+
+    <!-- Top Header Bar -->
+    <header class="bg-slate-900 text-white shadow-xl sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <!-- Left Logo & Title -->
+            <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-br from-cyan-500 to-blue-600 p-2.5 rounded-xl text-white flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-atom text-2xl animate-spin-slow"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-cyan-400 font-bold tracking-wider uppercase flex items-center gap-1.5">
+                            <i class="fa-solid fa-graduation-cap"></i> TRUNG TÂM LUYỆN THI
+                        </div>
+                        <h1 class="text-base md:text-lg font-bold tracking-tight text-white">
+                            ĐỀ CƯƠNG ÔN TẬP VẬT LÍ 12 — GIỮA KÌ I (MÃ ĐỀ 102)
+                        </h1>
+                        <p class="text-xs text-slate-400 hidden sm:block">
+                            Cấu trúc: 3 Phần (Phần I: 18 câu TN | Phần II: 4 câu Đ/S | Phần III: 6 câu TLN) • Cho biết: T(K)=t(°C)+273
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Timer Display (Mobile) -->
+                <div id="timer-mobile" class="md:hidden bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-amber-400 font-mono font-bold text-sm flex items-center gap-1.5">
+                    <i class="fa-regular fa-clock"></i> <span id="time-display-mobile">50:00</span>
+                </div>
+            </div>
+
+            <!-- Right Action Buttons -->
+            <div class="flex flex-wrap items-center justify-center md:justify-end gap-2 w-full md:w-auto">
+                <div id="timer-desktop" class="hidden md:flex bg-slate-800 border border-slate-700 px-3.5 py-1.5 rounded-lg text-amber-400 font-mono font-bold text-sm items-center gap-2 mr-2">
+                    <i class="fa-regular fa-clock text-amber-400"></i> <span id="time-display">50:00</span>
+                </div>
+                
+                <button onclick="shuffleQuestions()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs md:text-sm flex items-center gap-1.5 shadow transition">
+                    <i class="fa-solid fa-shuffle"></i> Xáo trộn đề
+                </button>
+                <button onclick="resetOrder()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs md:text-sm flex items-center gap-1.5 border border-slate-700 transition">
+                    <i class="fa-solid fa-rotate-left"></i> Thứ tự gốc
+                </button>
+                <button onclick="submitExam()" class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs md:text-sm flex items-center gap-1.5 shadow-lg transition">
+                    <i class="fa-solid fa-paper-plane"></i> Nộp bài thi
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left Column: Question Card & Interactive Controls (2 cols) -->
+        <section class="lg:col-span-2 flex flex-col gap-4">
+            
+            <!-- Question Top Status Bar -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <span id="part-badge" class="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-lg uppercase tracking-wider shadow-sm">
+                        PHẦN I • CÂU 1/28
+                    </span>
+                    <span id="question-points-badge" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold rounded-md">
+                        Thang điểm: 0,25 điểm / ý đúng
+                    </span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleBookmark()" id="bookmark-btn" class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg flex items-center gap-1.5 border border-slate-300 transition">
+                        <i class="fa-regular fa-bookmark" id="bookmark-icon"></i> <span id="bookmark-text">Đánh dấu</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                <div id="progress-bar" class="bg-blue-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+
+            <!-- Main Question Box -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col gap-6">
+                <!-- Question Title & Prompt -->
+                <div>
+                    <div class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1" id="question-type-header">
+                        PHẦN I. TRẮC NGHIỆM NHIỀU LỰA CHỌN (CHỌN 1 ĐÁP ÁN ĐÚNG)
+                    </div>
+                    <h2 class="text-lg md:text-xl font-bold text-slate-900 leading-snug" id="question-title">
+                        Loading...
+                    </h2>
+                </div>
+
+                <!-- Multiple Choice Options Container -->
+                <div id="options-container" class="flex flex-col gap-3"></div>
+
+                <!-- True / False Container -->
+                <div id="true-false-container" class="hidden flex flex-col gap-3"></div>
+
+                <!-- Short Answer Container -->
+                <div id="short-answer-container" class="hidden flex flex-col gap-3">
+                    <p class="text-sm text-slate-700 font-medium">Nhập câu trả lời của bạn vào ô bên dưới:</p>
+                    <div class="flex items-center gap-3">
+                        <input type="text" id="short-answer-input" oninput="saveShortAnswer(this.value)" placeholder="Nhập đáp số..." class="w-full md:w-64 px-4 py-2.5 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none font-bold text-lg text-slate-900 transition">
+                        <span id="short-answer-unit" class="text-sm font-bold text-slate-600 bg-slate-100 px-3 py-2.5 rounded-xl border border-slate-200"></span>
+                    </div>
+                </div>
+
+                <!-- Detailed Solution Box (Hidden until exam submitted) -->
+                <div id="solution-box" class="hidden mt-2 p-4 rounded-xl bg-amber-50 border border-amber-200 text-slate-800 flex flex-col gap-2">
+                    <div class="flex items-center gap-2 text-amber-800 font-bold text-sm">
+                        <i class="fa-solid fa-lightbulb"></i> Hướng Dẫn Giải Chi Tiết:
+                    </div>
+                    <div id="solution-content" class="text-sm leading-relaxed text-slate-700"></div>
+                </div>
+
+                <!-- Navigation Bottom Bar inside Question Card -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100 mt-2">
+                    <button onclick="prevQuestion()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl flex items-center gap-2 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Câu trước
+                    </button>
+                    <div class="text-xs font-bold text-slate-500" id="current-position-footer">
+                        Câu 1 / 28
+                    </div>
+                    <button onclick="nextQuestion()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-xl flex items-center gap-2 shadow transition">
+                        Câu tiếp <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Navigation Grid & Realtime Score Dashboard -->
+        <section class="flex flex-col gap-4">
+            
+            <!-- Control Summary Box -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col gap-4">
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-blue-700 font-bold text-sm">
+                        <i class="fa-solid fa-table-cells"></i> Bảng điều hướng đề thi
+                    </div>
+                    <span id="shuffle-status-tag" class="text-xs px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full font-medium">
+                        Thứ tự gốc
+                    </span>
+                </div>
+
+                <!-- Status counters -->
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5">
+                        <div class="text-xs text-slate-500 font-medium">Đã làm</div>
+                        <div class="text-lg font-bold text-slate-800" id="counter-done">0/28</div>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-2.5">
+                        <div class="text-xs text-emerald-600 font-medium">Tổng điểm</div>
+                        <div class="text-lg font-bold text-emerald-700" id="counter-score">? / 10</div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 rounded-xl p-2.5">
+                        <div class="text-xs text-amber-600 font-medium">Đánh dấu</div>
+                        <div class="text-lg font-bold text-amber-700" id="counter-marked">0</div>
+                    </div>
+                </div>
+
+                <!-- Legend / Status tags -->
+                <div class="flex flex-wrap items-center justify-between text-xs text-slate-600 pt-1 border-t border-slate-100">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> Hoàn thành
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span> Đang xem
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> Đánh dấu
+                    </div>
+                </div>
+
+                <!-- Part I Grid -->
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-xs font-semibold text-slate-700">
+                        <span>PHẦN I: NHIỀU LỰA CHỌN (4.5Đ)</span>
+                        <span class="text-slate-500">18 CÂU</span>
+                    </div>
+                    <div id="grid-part1" class="grid grid-cols-6 gap-2">
+                        <!-- Generated via JS -->
+                    </div>
+                </div>
+
+                <!-- Part II Grid -->
+                <div class="flex flex-col gap-2 pt-2 border-t border-slate-100">
+                    <div class="flex justify-between items-center text-xs font-semibold text-slate-700">
+                        <span>PHẦN II: ĐÚNG / SAI (4.0Đ)</span>
+                        <span class="text-slate-500">4 CÂU (16 Ý)</span>
+                    </div>
+                    <div id="grid-part2" class="grid grid-cols-4 gap-2">
+                        <!-- Generated via JS -->
+                    </div>
+                </div>
+
+                <!-- Part III Grid -->
+                <div class="flex flex-col gap-2 pt-2 border-t border-slate-100">
+                    <div class="flex justify-between items-center text-xs font-semibold text-slate-700">
+                        <span>PHẦN III: TRẢ LỜI NGẮN (1.5Đ)</span>
+                        <span class="text-slate-500">6 CÂU</span>
+                    </div>
+                    <div id="grid-part3" class="grid grid-cols-6 gap-2">
+                        <!-- Generated via JS -->
+                    </div>
+                </div>
+
+                <!-- Submit Exam Button -->
+                <button onclick="submitExam()" class="w-full mt-2 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Nộp bài thi & Tự động chấm điểm
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Note -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-200 mt-auto bg-white">
+        TRUNG TÂM LUYỆN THI — Đề cương Vật lí 12 Giữa học kì I (Mã đề 102) • Chấm điểm tự động 0.25đ/câu
+    </footer>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-500"></i> Kết Quả Chấm Điểm Chi Tiết
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="modal-content" class="text-sm text-slate-600 flex flex-col gap-3 py-2">
+                <!-- Filled via JS -->
+            </div>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition">
+                Xem lại bài làm & Lời giải chi tiết
+            </button>
+        </div>
+    </div>
+
+    <!-- Full JavaScript Application Logic -->
+    <script>
+        // Complete dataset for Code 102 Physics Exam (28 total questions)
+        const questionsData = [
+            // --- PHẦN I: 18 Câu trắc nghiệm nhiều lựa chọn ---
+            { id: 1, part: 1, title: "Câu 1. Khi thả một thìa đường vào cốc nước nóng, đường tan nhanh hơn rất nhiều so với khi thả vào cốc nước lạnh. Hiện tượng này được giải thích là do", options: ["A. ở nhiệt độ cao, các phân tử nước và phân tử đường chuyển động nhiệt hỗn loạn nhanh hơn.", "B. nước nóng có lực đẩy phân tử lớn hơn nước lạnh.", "C. phân tử đường bị phân hủy thành các nguyên tử tự do ở nhiệt độ cao.", "D. thể tích của cốc nước tăng lên làm tăng khoảng cách giữa các hạt."], correctOption: 0, solution: "Nhiệt độ càng cao thì tốc độ chuyển động nhiệt hỗn loạn của các phân tử càng nhanh, dẫn đến quá trình khuếch tán diễn ra nhanh hơn." },
+            { id: 2, part: 1, title: "Câu 2. Chất ở thể lỏng có đặc tính nào sau đây?", options: ["A. Có thể tích và hình dạng riêng xác định.", "B. Có thể tích riêng xác định nhưng không có hình dạng riêng xác định.", "C. Không có thể tích riêng và không có hình dạng riêng xác định.", "D. Rất dễ bị nén ép giống như chất khí."], correctOption: 1, solution: "Chất lỏng có thể tích xác định nhưng không có hình dạng riêng mà phụ thuộc vào hình dạng phần bình chứa nó." },
+            { id: 3, part: 1, title: "Câu 3. Kim cương và than chì đều được cấu tạo từ các nguyên tử carbon nhưng lại có tính chất vật lí rất khác nhau (kim cương rất cứng, than chì mềm). Sự khác biệt này là do", options: ["A. kích thước của các nguyên tử carbon trong hai chất khác nhau.", "B. khối lượng của nguyên tử carbon trong kim cương lớn hơn trong than chì.", "C. cấu trúc mạng tinh thể và trật tự sắp xếp không gian của các nguyên tử carbon khác nhau.", "D. than chì là chất vô định hình còn kim cương là chất kết tinh."], correctOption: 2, solution: "Mạng tinh thể của kim cương là cấu trúc tứ diện bền vững, còn than chì có cấu trúc lớp liên kết yếu." },
+            { id: 4, part: 1, title: "Câu 4. Quá trình chuyển từ thể hơi (khí) sang thể lỏng được gọi là", options: ["A. sự ngưng kết.", "B. sự ngưng tụ.", "C. sự thăng hoa.", "D. sự đông đặc."], correctOption: 1, solution: "Quá trình chuyển từ thể hơi sang thể lỏng được gọi là sự ngưng tụ." },
+            { id: 5, part: 1, title: "Câu 5. Khẳng định nào sau đây là ĐÚNG khi nói về nội năng của vật?", options: ["A. Nội năng là dạng năng lượng gồm tổng động năng và thế năng của các phân tử cấu tạo nên vật.", "B. Nội năng chính là nhiệt lượng mà vật thu vào khi đun nóng.", "C. Vật chỉ có nội năng khi vật đang chuyển động cơ học so với mặt đất.", "D. Nội năng của một vật không thể biến đổi bằng hình thức thực hiện công."], correctOption: 0, solution: "Theo định nghĩa: Nội năng của một vật là tổng động năng và thế năng tương tác của các phân tử cấu tạo nên vật." },
+            { id: 6, part: 1, title: "Câu 6. Nén nhanh khối khí trong một xilanh cách nhiệt, nhiệt độ của khối khí tăng lên. Nguyên nhân làm nội năng của khối khí tăng là do", options: ["A. khối khí nhận nhiệt lượng từ môi trường ngoài.", "B. ngoại lực thực hiện công lên khối khí.", "C. khối lượng phân tử khí tăng lên.", "D. thể tích của các phân tử khí bị co lại."], correctOption: 1, solution: "Nén nhanh làm ngoại lực thực hiện công A > 0 lên khối khí. Do cách nhiệt (Q=0) nên ΔU = A > 0 làm nội năng tăng." },
+            { id: 7, part: 1, title: "Câu 7. Hai vật A và B tiếp xúc nhiệt với nhau. Nhiệt năng sẽ tự động truyền từ vật A sang vật B khi", options: ["A. nhiệt độ của vật A lớn hơn nhiệt độ của vật B.", "B. nội năng của vật A lớn hơn nội năng của vật B.", "C. khối lượng của vật A lớn hơn khối lượng vật B.", "D. nhiệt dung riêng của vật A lớn hơn vật B."], correctOption: 0, solution: "Nhiệt năng tự động truyền từ vật có nhiệt độ cao hơn sang vật có nhiệt độ thấp hơn." },
+            { id: 8, part: 1, title: "Câu 8. Trong thang nhiệt độ Celsius, khoảng cách giữa nhiệt độ tan chảy của nước đá tinh khiết và nhiệt độ sôi của nước tinh khiết (ở áp suất tiêu chuẩn) được chia thành", options: ["A. 100 phần bằng nhau.", "B. 273 phần bằng nhau.", "C. 180 phần bằng nhau.", "D. 373 phần bằng nhau."], correctOption: 0, solution: "Thang Celsius chia khoảng cách từ 0°C đến 100°C thành 100 phần bằng nhau (mỗi phần tương ứng 1°C)." },
+            { id: 9, part: 1, title: "Câu 9. Một bệnh nhân đo thân nhiệt bằng nhiệt kế điện tử thấy hiển thị 38,0 °C. Thân nhiệt của bệnh nhân theo thang đo Kelvin là", options: ["A. 311,0 K.", "B. 311,15 K.", "C. 235,0 K.", "D. 300,0 K."], correctOption: 0, solution: "T(K) = t(°C) + 273 = 38,0 + 273 = 311,0 K." },
+            { id: 10, part: 1, title: "Câu 10. Đơn vị đo nhiệt lượng trong hệ SI là", options: ["A. Oát (W).", "B. Jun (J).", "C. Calo (cal).", "D. Niutơn (N)."], correctOption: 1, solution: "Trong hệ SI, đơn vị của nhiệt lượng cũng như công và năng lượng là Jun (J)." },
+            { id: 11, part: 1, title: "Câu 11. Biết nhiệt dung riêng của nước là 4200 J/(kg.K) và của rượu là 2500 J/(kg.K). Nếu cung cấp cùng một nhiệt lượng cho 1 kg nước và 1 kg rượu ở cùng nhiệt độ ban đầu thì", options: ["A. nước tăng nhiệt độ nhiều hơn rượu.", "B. rượu tăng nhiệt độ nhiều hơn nước.", "C. cả hai chất lỏng đều tăng nhiệt độ như nhau.", "D. rượu sôi trước khi nhận nhiệt lượng."], correctOption: 1, solution: "Công thức: Δt = Q / (m.c). Do c_rượu < c_nước nên với cùng Q và m, rượu sẽ có độ tăng nhiệt độ Δt lớn hơn." },
+            { id: 12, part: 1, title: "Câu 12. Nhiệt nóng chảy riêng của nước đá là 3,34.10⁵ J/kg có ý nghĩa là", options: ["A. cần cung cấp nhiệt lượng 3,34.10⁵ J để làm tăng nhiệt độ của 1 kg nước đá thêm 1 °C.", "B. cần cung cấp nhiệt lượng 3,34.10⁵ J để làm nóng chảy hoàn toàn 1 kg nước đá ở 0 °C.", "C. 1 kg nước đá ở 0 °C tỏa ra 3,34.10⁵ J khi tan thành nước.", "D. nhiệt độ nóng chảy của nước đá là 3,34.10⁵ °C."], correctOption: 1, solution: "Ý nghĩa của nhiệt nóng chảy riêng λ: Nhiệt lượng cần thiết để nóng chảy hoàn toàn 1 kg chất đó ở nhiệt độ nóng chảy." },
+            { id: 13, part: 1, title: "Câu 13. Công thức tính nhiệt lượng cần cung cấp để làm hóa hơi hoàn toàn khối chất lỏng có khối lượng m ở nhiệt độ sôi là", options: ["A. Q = L.m.", "B. Q = λ.m.", "C. Q = m.c.Δt.", "D. Q = m / L."], correctOption: 0, solution: "Công thức tính nhiệt hóa hơi: Q = L.m." },
+            { id: 14, part: 1, title: "Câu 14. Hiện tượng nước đọng thành giọt sương trên lá cây vào ban đêm khi trời lạnh là kết quả của quá trình", options: ["A. nóng chảy.", "B. ngưng tụ.", "C. đông đặc.", "D. thăng hoa."], correctOption: 1, solution: "Ban đêm nhiệt độ giảm, hơi nước trong không khí ngưng tụ thành các giọt sương." },
+            { id: 15, part: 1, title: "Câu 15. Trong một chu trình hoạt động khép kín của động cơ nhiệt, sau khi trở về trạng thái ban đầu thì độ biến thiên nội năng ΔU của tác nhân có giá trị", options: ["A. luôn dương.", "B. luôn âm.", "C. bằng 0.", "D. không xác định được."], correctOption: 2, solution: "Khi trở về trạng thái ban đầu, trạng thái của hệ không đổi nên ΔU = U_cuối - U_đầu = 0." },
+            { id: 16, part: 1, title: "Câu 16. Theo mô hình khí lí tưởng, các phân tử khí được coi là", options: ["A. những quả cầu có kích thước rất lớn so với khoảng cách giữa chúng.", "B. các chất điểm chuyển động hỗn loạn không ngừng và chỉ va chạm đàn hồi.", "C. các điện tích luôn hút nhau khi ở xa nhau.", "D. các hạt chuyển động thẳng đều không bao giờ va chạm nhau."], correctOption: 1, solution: "Mô hình khí lí tưởng coi phân tử là các chất điểm chuyển động hỗn loạn và chỉ tương tác khi va chạm đàn hồi." },
+            { id: 17, part: 1, title: "Câu 17. Người ta thực hiện một công A = 100 J lên khối khí trong xilanh, đồng thời khối khí truyền ra môi trường nhiệt lượng Q = 30 J. Độ biến thiên nội năng của khối khí là", options: ["A. 130 J.", "B. 70 J.", "C. -70 J.", "D. -130 J."], correctOption: 1, solution: "Theo quy ước dấu: Thực hiện công lên khí => A = +100 J; Khí truyền nhiệt ra ngoài => Q = -30 J. Vậy ΔU = A + Q = 100 + (-30) = 70 J." },
+            { id: 18, part: 1, title: "Câu 18. Tại sao ở đáy các ấm đun nước điện bằng kim loại thường làm đáy phẳng và có diện tích tiếp xúc lớn?", options: ["A. Để tăng khả năng dẫn nhiệt từ mâm nhiệt vào nước giúp đun sôi nhanh.", "B. Để làm giảm nhiệt dung riêng của khối nước trong ấm.", "C. Để hạn chế sự bay hơi của nước khi chưa sôi.", "D. Để cách điện an toàn cho người sử dụng."], correctOption: 0, solution: "Diện tích tiếp xúc lớn giúp truyền nhiệt / dẫn nhiệt từ mâm nhiệt sang nước nhanh và hiệu quả nhất." },
+
+            // --- PHẦN II: 4 Câu Đúng/Sai (Mỗi câu gồm 4 ý) ---
+            { id: 19, part: 2, title: "Câu 1 (Phần II). Đồ thị khảo sát quá trình chuyển thể của 0,25 kg nước đá ban đầu ở -20 °C đun với công suất P = 350 W", statements: [
+                { text: "a) Trong 2 phút đầu tiên, khối nước đá nhận nhiệt lượng để nâng nhiệt độ từ -20 °C lên 0 °C.", correct: true },
+                { text: "b) Nhiệt lượng cần thiết để nâng nhiệt độ của 0,25 kg nước đá từ -20 °C lên 0 °C là 10500 J.", correct: true },
+                { text: "c) Trong khoảng thời gian từ phút thứ 2 đến phút thứ 6, khối chất tồn tại đồng thời ở cả hai thể: thể rắn và thể lỏng ở 0 °C.", correct: true },
+                { text: "d) Nhiệt lượng cần cung cấp để 0,25 kg nước đá nóng chảy hoàn toàn ở 0 °C là 83500 J, phù hợp với P = 350 W.", correct: true }
+            ], solution: "a) Đúng. b) Q1 = 0,25 * 2100 * 20 = 10500 J (Đúng). c) Đoạn nằm ngang ở 0°C đang nóng chảy nên gồm cả nước đá và nước (Đúng). d) Q_nc = 3,34.10⁵ * 0,25 = 83500 J; Q_nguồn = 350 * 240s = 84000 J (Sai số ~0,6% < 1%) (Đúng)." },
+
+            { id: 20, part: 2, title: "Câu 2 (Phần II). Thí nghiệm đo nhiệt hóa hơi riêng của nước ở 100 °C bằng cân điện tử (P = 200 W, sau 10 phút Δm = 52,5g)", statements: [
+                { text: "a) Việc mở nắp ấm giúp hơi nước thoát tự do ra ngoài để xác định khối lượng nước hóa hơi qua sự giảm chỉ số của cân.", correct: true },
+                { text: "b) Nhiệt lượng do dây nung tỏa ra trong thời gian 10 phút đun sôi là 120000 J.", correct: true },
+                { text: "c) Giá trị nhiệt hóa hơi riêng của nước xác định được từ thí nghiệm trên xấp xỉ bằng 2,29.10⁶ J/kg.", correct: true },
+                { text: "d) Nếu một phần hơi nước ngưng tụ ở mép bình rồi chảy ngược lại vào ấm thì giá trị nhiệt hóa hơi riêng tính được sẽ nhỏ hơn giá trị thực tế.", correct: false }
+            ], solution: "a) Đúng. b) Q = P.t = 200 * 600s = 120000 J (Đúng). c) L = Q / Δm = 120000 / 0.0525 ≈ 2,2857.10⁶ ≈ 2,29.10⁶ J/kg (Đúng). d) Sai! Khi ngưng tụ chảy lại làm Δm_đo < Δm_thực => L_đo = Q / Δm_đo sẽ LỚN HƠN thực tế." },
+
+            { id: 21, part: 2, title: "Câu 3 (Phần II). Quá trình nén nhanh không khí trong xilanh (A_ngoại = 250 J, Q ≈ 0)", statements: [
+                { text: "a) Khối khí nhận công từ ngoại lực nên theo quy ước dấu định luật I, A có giá trị dương (+250 J).", correct: true },
+                { text: "b) Độ biến thiên nội năng của khối khí trong quá trình nén nhanh này là ΔU = +250 J.", correct: true },
+                { text: "c) Do nội năng của khối khí tăng lên nên nhiệt độ của khối khí trong xilanh ở cuối quá trình nén sẽ tăng cao.", correct: true },
+                { text: "d) Hiện tượng nén nhanh không khí làm nhiệt độ tăng vọt là nguyên lí hoạt động đánh lửa tự nhiên của động cơ xăng.", correct: false }
+            ], solution: "a) Đúng. b) ΔU = A + Q = 250 + 0 = 250 J (Đúng). c) Nội năng tăng làm động năng phân tử tăng => Nhiệt độ tăng vọt (Đúng). d) Sai! Đây là nguyên lí động cơ Diesel (nén không khí tự bốc cháy dầu), động cơ xăng dùng bu-gi." },
+
+            { id: 22, part: 2, title: "Câu 4 (Phần II). Nhận định về quan hệ giữa nhiệt độ, cấu trúc phân tử và sự chuyển thể của chất", statements: [
+                { text: "a) Nhiệt độ càng cao chứng tỏ các phân tử chuyển động nhiệt càng nhanh và có động năng tịnh tiến trung bình càng lớn.", correct: true },
+                { text: "b) Khi nung nóng chất rắn vô định hình (hắc ín, sáp), nó mềm dần rồi chuyển sang thể lỏng và nhiệt độ tăng liên tục.", correct: true },
+                { text: "c) Khi trời nóng, mồ hôi bay hơi thu nhiệt từ bề mặt da giúp làm mát và ổn định thân nhiệt.", correct: true },
+                { text: "d) Hệ số nhiệt dung riêng của một vật phụ thuộc vào thể tích và hình dạng hình học bên ngoài của vật đó.", correct: false }
+            ], solution: "a) Đúng. b) Chất vô định hình không có nhiệt độ nóng chảy xác định, nhiệt độ tăng liên tục khi nóng chảy (Đúng). c) Đúng. d) Sai! Nhiệt dung riêng là thuộc tính đặc trưng của bản chất vật chất, không phụ thuộc thể tích hay hình dạng." },
+
+            // --- PHẦN III: 6 Câu Trả Lời Ngắn ---
+            { id: 23, part: 3, title: "Câu 1 (Phần III). Khối khí nhận nhiệt 220 J, đồng thời tự giãn nở thực hiện công 85 J. Độ biến thiên nội năng ΔU của khối khí bằng bao nhiêu Jun?", unit: "J", answer: "135", solution: "Áp dụng định luật I Nhiệt động lực học: Khí nhận nhiệt => Q = +220 J; Khí thực hiện công => A = -85 J. Độ biến thiên nội năng: ΔU = A + Q = (-85) + 220 = 135 J." },
+            { id: 24, part: 3, title: "Câu 2 (Phần III). Ấm siêu tốc P = 1500 W đun 1,5 kg nước từ 20 °C đến 100 °C (H = 84%, c = 4200 J/kg.K). Thời gian đun sôi là bao nhiêu giây? (Làm tròn đến hàng đơn vị)", unit: "giây", answer: "400", solution: "Nhiệt lượng ích cần đun nước: Q_ích = m.c.Δt = 1,5 * 4200 * (100 - 20) = 504000 J. Nhiệt lượng toàn phần nguồn cung cấp: Q_tp = Q_ích / H = 504000 / 0,84 = 600000 J. Thời gian: t = Q_tp / P = 600000 / 1500 = 400 giây." },
+            { id: 25, part: 3, title: "Câu 3 (Phần III). Để làm nóng chảy hoàn toàn 0,5 kg chì ở nhiệt độ nóng chảy 327 °C cần nhiệt lượng bao nhiêu kilôjun (kJ)? Biết λ_chì = 2,5.10⁴ J/kg. (Làm tròn đến 1 chữ số thập phân)", unit: "kJ", answer: "12.5", solution: "Q = λ.m = 2,5.10⁴ * 0,5 = 12500 J = 12,5 kJ." },
+            { id: 26, part: 3, title: "Câu 4 (Phần III). Thả 0,5 kg nhôm ở 100 °C vào 0,4 kg nước ở 20 °C. Nhiệt độ cân bằng là bao nhiêu °C? (c_nhôm = 880, c_nước = 4200, làm tròn đến 1 chữ số thập phân)", unit: "°C", answer: "36.6", altAnswer: "36.7", solution: "Phương trình cân bằng nhiệt: Q_tỏa = Q_thu <=> m1.c1.(100 - t) = m2.c2.(t - 20) <=> 0,5*880*(100 - t) = 0,4*4200*(t - 20) <=> 44000 - 440t = 1680t - 33600 <=> 2120t = 77600 => t ≈ 36,6 °C (hoặc 36,7 °C)." },
+            { id: 27, part: 3, title: "Câu 5 (Phần III). Cần cung cấp nhiệt lượng bao nhiêu kilôjun (kJ) để làm nóng chảy hoàn toàn 1,2 kg nước đá ở 0 °C thành nước ở 0 °C? (λ = 3,34.10⁵ J/kg)", unit: "kJ", answer: "400.8", solution: "Q = λ.m = 3,34.10⁵ * 1,2 = 400800 J = 400,8 kJ." },
+            { id: 28, part: 3, title: "Câu 6 (Phần III). Dùng nguồn P = 1000 W đun sôi và hóa hơi nước ở 100 °C (L = 2,26.10⁶ J/kg). Trong 113 giây, khối lượng nước hóa hơi là bao nhiêu gam?", unit: "gam", answer: "50", solution: "Nhiệt lượng tỏa ra trong 113s: Q = P.t = 1000 * 113 = 113000 J. Khối lượng hóa hơi: m = Q / L = 113000 / 2,26.10⁶ = 0,05 kg = 50 gam." }
+        ];
+
+        // State variables
+        let currentIndex = 0;
+        let userAnswers = {}; // Stores user inputs
+        let markedQuestions = new Set();
+        let isSubmitted = false;
+        let timeRemaining = 3000; // 50 mins in seconds
+        let timerInterval = null;
+
+        // On Load Initialization
+        window.onload = function() {
+            startTimer();
+            renderQuestion();
+            renderGrid();
+            updateCounters();
+
+            // Keyboard shortcut support
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT') return;
+                if (e.key >= '1' && e.key <= '4') {
+                    let currentQ = questionsData[currentIndex];
+                    if (currentQ.part === 1) {
+                        selectOption(parseInt(e.key) - 1);
+                    }
+                }
+            });
+        };
+
+        // Timer Countdown Function
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    submitExam();
+                    return;
+                }
+                timeRemaining--;
+                let m = Math.floor(timeRemaining / 60);
+                let s = timeRemaining % 60;
+                let formatted = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                document.getElementById('time-display').innerText = formatted;
+                document.getElementById('time-display-mobile').innerText = formatted;
+            }, 1000);
+        }
+
+        // Render Current Question View
+        function renderQuestion() {
+            const q = questionsData[currentIndex];
+            
+            // Set part badge & info
+            if (q.part === 1) {
+                document.getElementById('part-badge').innerText = `PHẦN I • CÂU ${q.id}/18`;
+                document.getElementById('question-type-header').innerText = "PHẦN I. TRẮC NGHIỆM NHIỀU LỰA CHỌN (CHỌN 1 ĐÁP ÁN ĐÚNG A, B, C HOẶC D)";
+                document.getElementById('options-container').classList.remove('hidden');
+                document.getElementById('true-false-container').classList.add('hidden');
+                document.getElementById('short-answer-container').classList.add('hidden');
+
+                let html = '';
+                const labels = ['A', 'B', 'C', 'D'];
+                q.options.forEach((optText, idx) => {
+                    let isSelected = userAnswers[q.id] === idx;
+                    let borderClass = 'border-slate-200 hover:border-slate-300 bg-white';
+                    let badgeBg = 'border-slate-300 bg-white text-slate-700';
+
+                    if (isSelected) {
+                        borderClass = 'border-blue-600 bg-blue-50/70 shadow-sm ring-1 ring-blue-400';
+                        badgeBg = 'bg-blue-600 border-blue-600 text-white font-bold';
+                    }
+
+                    if (isSubmitted) {
+                        if (idx === q.correctOption) {
+                            borderClass = 'border-emerald-500 bg-emerald-50 shadow-sm ring-2 ring-emerald-400';
+                            badgeBg = 'bg-emerald-600 border-emerald-600 text-white font-bold';
+                        } else if (isSelected && idx !== q.correctOption) {
+                            borderClass = 'border-rose-500 bg-rose-50 ring-1 ring-rose-400';
+                            badgeBg = 'bg-rose-600 border-rose-600 text-white font-bold';
+                        }
+                    }
+
+                    html += `
+                        <div onclick="selectOption(${idx})" class="flex items-center justify-between p-4 rounded-xl border ${borderClass} cursor-pointer transition">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-8 h-8 rounded-lg border ${badgeBg} flex items-center justify-center text-xs transition">
+                                    ${labels[idx]}
+                                </div>
+                                <span class="text-slate-800 font-semibold text-sm md:text-base">${optText}</span>
+                            </div>
+                            <span class="text-xs text-slate-400 font-medium bg-slate-100 px-2 py-1 rounded-md">Phím ${idx + 1}</span>
+                        </div>
+                    `;
+                });
+                document.getElementById('options-container').innerHTML = html;
+
+            } else if (q.part === 2) {
+                document.getElementById('part-badge').innerText = `PHẦN II • CÂU ${q.id - 18}/4`;
+                document.getElementById('question-type-header').innerText = "PHẦN II. CÂU TRẮC NGHIỆM ĐÚNG / SAI (CHỌN ĐÚNG HOẶC SAI CHO MỖI Ý a, b, c, d)";
+                document.getElementById('options-container').classList.add('hidden');
+                document.getElementById('true-false-container').classList.remove('hidden');
+                document.getElementById('short-answer-container').classList.add('hidden');
+
+                let tfAns = userAnswers[q.id] || [null, null, null, null];
+                let tfHtml = '';
+
+                q.statements.forEach((stmt, sIdx) => {
+                    let currentVal = tfAns[sIdx];
+                    let trueBtnStyle = currentVal === true ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50';
+                    let falseBtnStyle = currentVal === false ? 'bg-rose-600 text-white border-rose-600 font-bold shadow' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50';
+
+                    if (isSubmitted) {
+                        if (stmt.correct === true) trueBtnStyle += ' ring-2 ring-emerald-500 font-bold';
+                        if (stmt.correct === false) falseBtnStyle += ' ring-2 ring-emerald-500 font-bold';
+                    }
+
+                    tfHtml += `
+                        <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <span class="text-sm text-slate-800 font-medium">${stmt.text}</span>
+                            <div class="flex items-center gap-2 self-end sm:self-center">
+                                <button onclick="selectTrueFalse(${sIdx}, true)" class="px-4 py-1.5 rounded-lg border text-xs font-semibold transition ${trueBtnStyle}">Đúng</button>
+                                <button onclick="selectTrueFalse(${sIdx}, false)" class="px-4 py-1.5 rounded-lg border text-xs font-semibold transition ${falseBtnStyle}">Sai</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('true-false-container').innerHTML = tfHtml;
+
+            } else if (q.part === 3) {
+                document.getElementById('part-badge').innerText = `PHẦN III • CÂU ${q.id - 22}/6`;
+                document.getElementById('question-type-header').innerText = "PHẦN III. CÂU HỎI TRẢ LỜI NGẮN (NHẬP ĐÁP SỐ ĐỊNH LƯỢNG)";
+                document.getElementById('options-container').classList.add('hidden');
+                document.getElementById('true-false-container').classList.add('hidden');
+                document.getElementById('short-answer-container').classList.remove('hidden');
+
+                document.getElementById('short-answer-input').value = userAnswers[q.id] || '';
+                document.getElementById('short-answer-unit').innerText = q.unit;
+            }
+
+            // General Header & Progress Updates
+            document.getElementById('question-title').innerText = q.title;
+            document.getElementById('current-position-footer').innerText = `Câu ${currentIndex + 1} / 28`;
+            document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / 28) * 100}%`;
+
+            // Solution display after submit
+            const solutionBox = document.getElementById('solution-box');
+            if (isSubmitted && q.solution) {
+                solutionBox.classList.remove('hidden');
+                document.getElementById('solution-content').innerText = q.solution;
+            } else {
+                solutionBox.classList.add('hidden');
+            }
+
+            // Bookmark button toggle state
+            const bookmarkIcon = document.getElementById('bookmark-icon');
+            const bookmarkText = document.getElementById('bookmark-text');
+            if (markedQuestions.has(q.id)) {
+                bookmarkIcon.className = "fa-solid fa-bookmark text-amber-500";
+                bookmarkText.innerText = "Đã đánh dấu";
+            } else {
+                bookmarkIcon.className = "fa-regular fa-bookmark";
+                bookmarkText.innerText = "Đánh dấu";
+            }
+
+            renderGrid();
+        }
+
+        // Action Handlers
+        function selectOption(optIndex) {
+            if (isSubmitted) return;
+            const q = questionsData[currentIndex];
+            userAnswers[q.id] = optIndex;
+            renderQuestion();
+            updateCounters();
+        }
+
+        function selectTrueFalse(statementIndex, value) {
+            if (isSubmitted) return;
+            const q = questionsData[currentIndex];
+            if (!userAnswers[q.id]) userAnswers[q.id] = [null, null, null, null];
+            userAnswers[q.id][statementIndex] = value;
+            renderQuestion();
+            updateCounters();
+        }
+
+        function saveShortAnswer(val) {
+            if (isSubmitted) return;
+            const q = questionsData[currentIndex];
+            userAnswers[q.id] = val.trim();
+            updateCounters();
+            renderGrid();
+        }
+
+        function toggleBookmark() {
+            const q = questionsData[currentIndex];
+            if (markedQuestions.has(q.id)) {
+                markedQuestions.delete(q.id);
+            } else {
+                markedQuestions.add(q.id);
+            }
+            renderQuestion();
+            updateCounters();
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questionsData.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function jumpTo(index) {
+            currentIndex = index;
+            renderQuestion();
+        }
+
+        // Render Dashboard Grid Icons
+        function renderGrid() {
+            // Part 1 Grid
+            let p1Html = '';
+            for (let i = 0; i < 18; i++) {
+                let q = questionsData[i];
+                let bgClass = "bg-white text-slate-700 border-slate-200 hover:border-blue-400";
+                if (i === currentIndex) {
+                    bgClass = "bg-blue-600 text-white border-blue-600 ring-2 ring-blue-300 font-bold shadow-sm";
+                } else if (userAnswers[q.id] !== undefined && userAnswers[q.id] !== null) {
+                    bgClass = "bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold";
+                }
+                if (markedQuestions.has(q.id)) bgClass += " border-amber-400 ring-1 ring-amber-300";
+
+                p1Html += `<button onclick="jumpTo(${i})" class="h-9 rounded-lg border text-xs font-medium flex items-center justify-center transition ${bgClass}">${i + 1}</button>`;
+            }
+            document.getElementById('grid-part1').innerHTML = p1Html;
+
+            // Part 2 Grid
+            let p2Html = '';
+            for (let i = 18; i < 22; i++) {
+                let q = questionsData[i];
+                let bgClass = "bg-white text-slate-700 border-slate-200 hover:border-blue-400";
+                let ans = userAnswers[q.id];
+                if (i === currentIndex) {
+                    bgClass = "bg-blue-600 text-white border-blue-600 ring-2 ring-blue-300 font-bold shadow-sm";
+                } else if (ans && ans.every(a => a !== null)) {
+                    bgClass = "bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold";
+                } else if (ans && ans.some(a => a !== null)) {
+                    bgClass = "bg-blue-50 text-blue-700 border-blue-200";
+                }
+                if (markedQuestions.has(q.id)) bgClass += " border-amber-400 ring-1 ring-amber-300";
+
+                p2Html += `<button onclick="jumpTo(${i})" class="h-9 rounded-lg border text-xs font-semibold flex items-center justify-center transition ${bgClass}">C${i - 17}</button>`;
+            }
+            document.getElementById('grid-part2').innerHTML = p2Html;
+
+            // Part 3 Grid
+            let p3Html = '';
+            for (let i = 22; i < 28; i++) {
+                let q = questionsData[i];
+                let bgClass = "bg-white text-slate-700 border-slate-200 hover:border-blue-400";
+                if (i === currentIndex) {
+                    bgClass = "bg-blue-600 text-white border-blue-600 ring-2 ring-blue-300 font-bold shadow-sm";
+                } else if (userAnswers[q.id] && userAnswers[q.id] !== '') {
+                    bgClass = "bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold";
+                }
+                if (markedQuestions.has(q.id)) bgClass += " border-amber-400 ring-1 ring-amber-300";
+
+                p3Html += `<button onclick="jumpTo(${i})" class="h-9 rounded-lg border text-xs font-semibold flex items-center justify-center transition ${bgClass}">C${i - 21}</button>`;
+            }
+            document.getElementById('grid-part3').innerHTML = p3Html;
+        }
+
+        function updateCounters() {
+            let doneCount = Object.keys(userAnswers).filter(k => {
+                let v = userAnswers[k];
+                if (Array.isArray(v)) return v.some(x => x !== null);
+                return v !== null && v !== '';
+            }).length;
+
+            document.getElementById('counter-done').innerText = `${doneCount}/28`;
+            document.getElementById('counter-marked').innerText = markedQuestions.size;
+        }
+
+        function shuffleQuestions() {
+            if (isSubmitted) return;
+            let p1 = questionsData.slice(0, 18).sort(() => Math.random() - 0.5);
+            for (let i = 0; i < 18; i++) questionsData[i] = p1[i];
+            currentIndex = 0;
+            renderQuestion();
+            document.getElementById('shuffle-status-tag').innerText = "Đã xáo trộn";
+        }
+
+        function resetOrder() {
+            if (isSubmitted) return;
+            questionsData.sort((a, b) => a.id - b.id);
+            currentIndex = 0;
+            renderQuestion();
+            document.getElementById('shuffle-status-tag').innerText = "Thứ tự gốc";
+        }
+
+        // Automatic Grading & Exam Submission (0.25 points per correct item)
+        function submitExam() {
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            let scoreP1 = 0; // 18 items x 0.25 = 4.5 pts
+            let scoreP2 = 0; // 16 sub-items x 0.25 = 4.0 pts
+            let scoreP3 = 0; // 6 items x 0.25 = 1.5 pts
+
+            questionsData.forEach(q => {
+                let uAns = userAnswers[q.id];
+                if (q.part === 1) {
+                    if (uAns === q.correctOption) scoreP1 += 0.25;
+                } else if (q.part === 2) {
+                    if (Array.isArray(uAns)) {
+                        uAns.forEach((ans, idx) => {
+                            if (ans === q.statements[idx].correct) scoreP2 += 0.25;
+                        });
+                    }
+                } else if (q.part === 3) {
+                    if (uAns !== undefined && uAns !== '') {
+                        let cleanUser = uAns.replace(',', '.');
+                        if (cleanUser === q.answer || (q.altAnswer && cleanUser === q.altAnswer)) {
+                            scoreP3 += 0.25;
+                        }
+                    }
+                }
+            });
+
+            let totalScore = (scoreP1 + scoreP2 + scoreP3).toFixed(2);
+            document.getElementById('counter-score').innerText = `${totalScore} / 10`;
+
+            let modalContent = `
+                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="font-medium text-slate-700">Tổng điểm bài kiểm tra:</span>
+                    <span class="text-xl font-extrabold text-emerald-600">${totalScore} / 10,0 điểm</span>
+                </div>
+                <div class="flex justify-between items-center bg-blue-50 p-2.5 rounded-lg border border-blue-100 text-xs">
+                    <span>Phần I (18 câu TN):</span>
+                    <span class="font-bold text-blue-700">${scoreP1.toFixed(2)} / 4,50 điểm</span>
+                </div>
+                <div class="flex justify-between items-center bg-indigo-50 p-2.5 rounded-lg border border-indigo-100 text-xs">
+                    <span>Phần II (16 ý Đúng/Sai):</span>
+                    <span class="font-bold text-indigo-700">${scoreP2.toFixed(2)} / 4,00 điểm</span>
+                </div>
+                <div class="flex justify-between items-center bg-teal-50 p-2.5 rounded-lg border border-teal-100 text-xs">
+                    <span>Phần III (6 câu Trả lời ngắn):</span>
+                    <span class="font-bold text-teal-700">${scoreP3.toFixed(2)} / 1,50 điểm</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">Đã mở khóa toàn bộ đáp án đúng và lời giải chi tiết bên dưới mỗi câu hỏi!</p>
+            `;
+
+            document.getElementById('modal-content').innerHTML = modalContent;
+            document.getElementById('result-modal').classList.remove('hidden');
+            document.getElementById('result-modal').classList.add('flex');
+
+            renderQuestion();
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+            document.getElementById('result-modal').classList.remove('flex');
+        }
+    </script>
+</body>
+</html>
